@@ -10,7 +10,9 @@ import gevent
 from gevent import monkey
 monkey.patch_all()
 
-BASE_URL = "http://localhost:8080"
+BASE_URL = "http://localhost:14100"
+STATIC_FILES = "./static"
+TEMPLATE_FILES = "./tpl"
 
 ds = datastore.DataStore('file:///tmp/pasteit/')
 idgen = idgenerator.IdGenerator()
@@ -18,19 +20,19 @@ idgen = idgenerator.IdGenerator()
 @get('/')
 @get('/index.html')
 def index():
-    return static_file('index.html', root='./static/')
+    return static_file('index.html', root='%s' % STATIC_FILES)
 
 @get('/css/:f')
 def css(f):
-    return static_file('%s' % f, root='./static/css/')
+    return static_file('%s' % f, root='%s/css' % STATIC_FILES)
 
 @get('/js/:f')
 def css(f):
-    return static_file('%s' % f, root='./static/js/')
+    return static_file('%s' % f, root='%s/js' % STATIC_FILES)
 
 @get('/images/:f')
 def css(f):
-    return static_file('%s' % f, root='./static/images/')
+    return static_file('%s' % f, root='%s/images' % STATIC_FILES)
 
 
 @post('/pasteit')
@@ -48,7 +50,7 @@ def getdoc(id):
     codebody = ds.load("pasteit-%s" % id)
     if codebody == None: abort(404, 'id not found')
     cc = highlight(codebody, PythonLexer(), HtmlFormatter(style = "colorful")) 
-    return template('tpl/pasted.tpl', code=cc, id=id, base_url=BASE_URL)
+    return template('%s/pasted.tpl' % TEMPLATE_FILES, code=cc, id=id, base_url=BASE_URL)
 
 @get('/raw/:id')
 def getdoc(id):
