@@ -6,6 +6,9 @@ from pygments.formatters import HtmlFormatter
 import datastore
 import idgenerator 
 from base62 import base62_encode
+import gevent
+from gevent import monkey
+monkey.patch_all()
 
 BASE_URL = "http://localhost:8080"
 
@@ -55,4 +58,4 @@ def getdoc(id):
     return codebody
 
 debug(True)
-run()
+run(host='localhost', port=14100, server='gevent')
