@@ -7,4 +7,5 @@ Initially a file based backend is ready, a git based backend is almost ready
 
 Edit pasteit.py to change your base domain and run as a normal python app. 
 For serious loads you might want to serve css, js and html from a webserver. In this case, map the backend as /pasteit.
+For development/testing run with python pasteit.py
 
