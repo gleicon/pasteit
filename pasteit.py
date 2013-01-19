@@ -15,7 +15,7 @@ STATIC_FILES = "./static"
 TEMPLATE_FILES = "./tpl"
 
 ds = datastore.DataStore('file:///tmp/pasteit/')
-idgen = idgenerator.IdGenerator()
+idgen = idgenerator.IdGenerator("pasteit")
 
 @get('/')
 @get('/index.html')
@@ -38,12 +38,16 @@ def css(f):
 @post('/pasteit')
 def pasteit():
     codebody = request.POST['codebody']
+    raw = request.POST.get('raw', None)
     if codebody == None: abort(500, 'Empty request')
     a = idgen.request()
     id = base62_encode(a)
     r = ds.save("pasteit-%s" % id, codebody)
     if r == False: abort(503, 'Internal error saving id %s (%d)' % (id, a))
-    redirect("%s/%s" %(BASE_URL, id))
+    if raw is None:
+        redirect("%s/%s" %(BASE_URL, id))
+    else:
+        return id
 
 @get('/:id')
 def getdoc(id):
