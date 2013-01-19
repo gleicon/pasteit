@@ -53,6 +53,7 @@
     <div class="container">
     URL: <a href="{{base_url}}/{{id}}">{{base_url}}/{{id}}</a><br>
     Raw: <a href="{{base_url}}/raw/{{id}}">{{base_url}}/raw/{{id}}</a>
+    <p class="small"><a href="/shell.html">Learn how you can use pasteit from your shell</a></p>
     <br><br>
     {{!code}}
     </div>
