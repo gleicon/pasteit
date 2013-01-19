@@ -5,6 +5,7 @@ from pygments.lexers import PythonLexer
 from pygments.formatters import HtmlFormatter
 import datastore
 import idgenerator 
+import throttle
 from base62 import base62_encode
 import gevent
 from gevent import monkey
@@ -16,36 +17,51 @@ TEMPLATE_FILES = "./tpl"
 
 ds = datastore.DataStore('file:///tmp/pasteit/')
 idgen = idgenerator.IdGenerator("pasteit")
+throttle = throttle.ThrottleControl("pasteit")
+
 
 @get('/')
 @get('/index.html')
 def index():
     return static_file('index.html', root='%s' % STATIC_FILES)
 
+
 @get('/css/:f')
 def css(f):
     return static_file('%s' % f, root='%s/css' % STATIC_FILES)
 
+
 @get('/js/:f')
-def css(f):
+def js(f):
     return static_file('%s' % f, root='%s/js' % STATIC_FILES)
 
+
 @get('/images/:f')
-def css(f):
+def imgs(f):
     return static_file('%s' % f, root='%s/images' % STATIC_FILES)
 
 
 @post('/pasteit')
 def pasteit():
+    ip = get_real_ip(request)
+    r = throttle.check(ip)
+
+    if r is False:
+        abort(401, "Not authorized")
+
     codebody = request.POST['codebody']
     raw = request.POST.get('raw', None)
-    if codebody == None: abort(500, 'Empty request')
+    if codebody is None:
+        abort(500, 'Empty request')
+
     a = idgen.request()
     id = base62_encode(a)
     r = ds.save("pasteit-%s" % id, codebody)
-    if r == False: abort(503, 'Internal error saving id %s (%d)' % (id, a))
+    if r is False:
+        abort(503, 'Internal error saving id %s (%d)' % (id, a))
+
     if raw is None:
-        redirect("%s/%s" %(BASE_URL, id))
+        redirect("%s/%s" % (BASE_URL, id))
     else:
         return id
 
@@ -63,5 +79,8 @@ def getdoc(id):
     if codebody == None: abort(404, 'id not found')
     return codebody
 
-debug(True)
+def get_real_ip(req):
+    c = req.environ.get("X-Forwarded-For", None)
+    if c is None:
+        return req.remote_addr
 run(host='localhost', port=14100, server='gevent')

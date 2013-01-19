@@ -1,5 +1,5 @@
-pygments
 bottle==0.10.11
 gevent==0.13.7
 redis==2.6.2
 Pygments==1.5
+python-metrics==0.2
