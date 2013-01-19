@@ -25,6 +25,9 @@ throttle = throttle.ThrottleControl("pasteit")
 def index():
     return static_file('index.html', root='%s' % STATIC_FILES)
 
+@get('/shell.html')
+def shell():
+    return static_file('shell.html', root='%s' % STATIC_FILES)
 
 @get('/css/:f')
 def css(f):

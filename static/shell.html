@@ -9,6 +9,7 @@
     <!-- Le styles -->
     <link href="css/bootstrap.css" rel="stylesheet">
     <link href="css/jquery-linedtextarea.css" rel="stylesheet">
+    <link href="css/pygments.css" rel="stylesheet">
     <style>
       body {
         padding-top: 60px; /* 60px to make the container go all the way to the bottom of the topbar */
@@ -38,7 +39,7 @@
             <span class="icon-bar"></span>
             <span class="icon-bar"></span>
           </a>
-          <a class="brand" href="#">PasteIT</a>
+          <a class="brand" href="/">PasteIT</a>
           <div class="nav-collapse">
             <ul class="nav">
               <li><a href="http://www.7co.cc">7co.cc</a></li>
@@ -50,17 +51,31 @@
     </div>
 
     <div class="container">
-    <br><br>
-          <p>Paste your text below, get a URL for it.<p>
-          <form action="/pasteit" method=POST>
-          <textarea name="codebody" id="codebody" style="height: 400px; width: 80%;"></textarea>
-          <br>
-        <div class="span9">
-           <div class="pull-right">
-          <input class="btn btn-small btn-success" type="submit" value="Paste It !">
-            </div>
-        </form>
-        </div>
+        <br><br>
+        <p>You can use pasteit as a remote clipboard by using these shell functions (adapted from <a href="http://github.com/fiorix/pbserver">pbserver</a> and tested on bash). Paste them on your .bash_provile or source it straight.</p>
+        <br><br>
+        <pre>
+            pasteit_post=http://p.chu.pe/pasteit
+            pasteit_get=http://p.chu.pe/raw
+
+            function xpbcopy() {
+              tmp=/tmp/xpbcopy.$$
+              trap "rm -f ${tmp}" EXIT
+              echo -n "raw=1&codebody=" > $tmp
+              IFS=$"\n" cat "${1:-/dev/stdin}" >> $tmp
+              if [[ -x `which curl` ]]; then curl --data-binary @${tmp} ${pasteit_post}
+              elif [[ -x `which wget` ]]; then wget --post-file=${tmp} -qO- ${pbserver}
+              else echo "xpbcopy requires curl or wget"; exit 1; fi
+            }
+
+            function xpbpaste() {
+              if [[ -x `which curl` ]]; then curl ${pasteit_get}/$1
+              elif [[ -x `which wget` ]]; then wget -qO- ${pbserver}/$1
+              else echo "xpbpaste requires curl or wget"; exit 1; fi
+            }
+
+        </pre>
+
     </div>
 
     <script src="js/jquery-1.7.1.min.js"></script>
